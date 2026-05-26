@@ -1,0 +1,23 @@
+{
+  "fields": {
+    "shortcut": {
+      "type": "varchar",
+      "maxLength": 50,
+      "required": true,
+      "index": true
+    },
+    "content": {
+      "type": "text",
+      "required": true
+    },
+    "createdAt": {
+      "type": "datetime",
+      "readOnly": true
+    }
+  },
+  "collection": {
+    "textFilterFields": ["shortcut", "content"],
+    "orderBy": "shortcut",
+    "order": "asc"
+  }
+}

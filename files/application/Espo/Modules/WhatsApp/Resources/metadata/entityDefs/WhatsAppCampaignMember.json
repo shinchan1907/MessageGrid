@@ -1,0 +1,61 @@
+{
+  "fields": {
+    "campaign": {
+      "type": "link"
+    },
+    "entityType": {
+      "type": "enum",
+      "options": ["Lead", "Contact", "Account"],
+      "required": true
+    },
+    "entityId": {
+      "type": "varchar",
+      "maxLength": 24,
+      "required": true
+    },
+    "phoneNumber": {
+      "type": "varchar",
+      "maxLength": 50,
+      "required": true
+    },
+    "status": {
+      "type": "enum",
+      "options": ["Queued", "Sent", "Delivered", "Read", "Failed"],
+      "default": "Queued"
+    },
+    "errorMessage": {
+      "type": "varchar",
+      "maxLength": 255
+    },
+    "metaMessageId": {
+      "type": "varchar",
+      "maxLength": 100
+    },
+    "createdAt": {
+      "type": "datetime",
+      "readOnly": true
+    },
+    "modifiedAt": {
+      "type": "datetime",
+      "readOnly": true
+    }
+  },
+  "links": {
+    "campaign": {
+      "type": "belongsTo",
+      "entity": "WhatsAppCampaign"
+    }
+  },
+  "indexes": {
+    "campaign_member": {
+      "columns": ["campaignId", "entityType", "entityId"]
+    },
+    "metaMessageId": {
+      "columns": ["metaMessageId"]
+    }
+  },
+  "collection": {
+    "orderBy": "createdAt",
+    "order": "desc"
+  }
+}

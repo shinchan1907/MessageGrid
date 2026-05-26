@@ -1,0 +1,66 @@
+{
+  "fields": {
+    "name": {
+      "type": "varchar",
+      "maxLength": 100,
+      "required": true
+    },
+    "template": {
+      "type": "link"
+    },
+    "segmentFilters": {
+      "type": "text"
+    },
+    "scheduledTime": {
+      "type": "datetime"
+    },
+    "status": {
+      "type": "enum",
+      "options": ["Draft", "Queued", "Sending", "Paused", "Completed", "Cancelled"],
+      "default": "Draft"
+    },
+    "totalCount": {
+      "type": "int",
+      "default": 0
+    },
+    "sentCount": {
+      "type": "int",
+      "default": 0
+    },
+    "deliveredCount": {
+      "type": "int",
+      "default": 0
+    },
+    "readCount": {
+      "type": "int",
+      "default": 0
+    },
+    "failedCount": {
+      "type": "int",
+      "default": 0
+    },
+    "rateLimit": {
+      "type": "int",
+      "default": 60
+    },
+    "createdAt": {
+      "type": "datetime",
+      "readOnly": true
+    },
+    "modifiedAt": {
+      "type": "datetime",
+      "readOnly": true
+    }
+  },
+  "links": {
+    "template": {
+      "type": "belongsTo",
+      "entity": "WhatsAppTemplate"
+    }
+  },
+  "collection": {
+    "textFilterFields": ["name", "status"],
+    "orderBy": "createdAt",
+    "order": "desc"
+  }
+}

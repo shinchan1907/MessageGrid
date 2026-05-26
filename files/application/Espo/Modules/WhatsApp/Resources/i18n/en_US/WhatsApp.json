@@ -1,0 +1,23 @@
+{
+  "labels": {
+    "WhatsApp": "WhatsApp Workspace",
+    "Inbox": "WhatsApp Chat Inbox",
+    "Templates": "WhatsApp Templates",
+    "Campaigns": "WhatsApp Broadcasts",
+    "Analytics": "WhatsApp Analytics",
+    "Settings": "WhatsApp Settings",
+    "CannedResponses": "Canned Responses",
+    "StickyRouting": "Sticky Agent Routing"
+  },
+  "fields": {
+    "metaAppId": "Meta App ID",
+    "metaAppSecret": "Meta App Secret",
+    "metaVerifyToken": "Meta Verify Token",
+    "metaPermanentToken": "Permanent Access Token",
+    "metaWabaId": "WABA ID",
+    "metaPhoneNumberId": "Phone Number ID",
+    "metaBusinessName": "Business Account Name",
+    "webhookUrl": "Webhook URL",
+    "webhookToken": "Webhook Verify Token"
+  }
+}

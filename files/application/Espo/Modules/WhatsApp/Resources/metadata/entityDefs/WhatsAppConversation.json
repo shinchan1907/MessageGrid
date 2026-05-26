@@ -1,0 +1,99 @@
+{
+  "fields": {
+    "phoneNumber": {
+      "type": "varchar",
+      "maxLength": 50,
+      "required": true,
+      "index": true
+    },
+    "customerName": {
+      "type": "varchar",
+      "maxLength": 100
+    },
+    "mappedType": {
+      "type": "enum",
+      "options": ["Lead", "Contact", "Account", "None"],
+      "default": "None"
+    },
+    "mappedId": {
+      "type": "varchar",
+      "maxLength": 24,
+      "index": true
+    },
+    "assignedUser": {
+      "type": "link"
+    },
+    "assignedTeam": {
+      "type": "link"
+    },
+    "status": {
+      "type": "enum",
+      "options": ["Pending", "Open", "Resolved"],
+      "default": "Pending",
+      "style": {
+        "Pending": "warning",
+        "Open": "success",
+        "Resolved": "danger"
+      }
+    },
+    "priority": {
+      "type": "enum",
+      "options": ["Low", "Medium", "High"],
+      "default": "Medium",
+      "style": {
+        "Low": "info",
+        "Medium": "warning",
+        "High": "danger"
+      }
+    },
+    "unreadCount": {
+      "type": "int",
+      "default": 0
+    },
+    "lastMessageTime": {
+      "type": "datetime"
+    },
+    "lastMessageSnippet": {
+      "type": "varchar",
+      "maxLength": 255
+    },
+    "slaExpiresAt": {
+      "type": "datetime"
+    },
+    "tags": {
+      "type": "varchar",
+      "maxLength": 255
+    },
+    "createdAt": {
+      "type": "datetime",
+      "readOnly": true
+    },
+    "modifiedAt": {
+      "type": "datetime",
+      "readOnly": true
+    }
+  },
+  "links": {
+    "assignedUser": {
+      "type": "belongsTo",
+      "entity": "User"
+    },
+    "assignedTeam": {
+      "type": "belongsTo",
+      "entity": "Team"
+    }
+  },
+  "indexes": {
+    "phoneNumber": {
+      "columns": ["phoneNumber"]
+    },
+    "mapped": {
+      "columns": ["mappedType", "mappedId"]
+    }
+  },
+  "collection": {
+    "textFilterFields": ["customerName", "phoneNumber", "lastMessageSnippet", "tags"],
+    "orderBy": "lastMessageTime",
+    "order": "desc"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "WhatsApp Integration",
+  "version": "1.0.0",
+  "acceptableVersions": [
+    ">=7.0.0"
+  ],
+  "author": "Antigravity Premium CRM Extensions",
+  "description": "Production-grade Meta WhatsApp Cloud API (WABA) Integration for EspoCRM. Complete with an Omnichannel Chat Inbox, Templates Sync, Campaigns Broadcasting, Queue Workers, and Sticky Agent Routing.",
+  "php": {
+    "version": ">=7.4"
+  }
+}

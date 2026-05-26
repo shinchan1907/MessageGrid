@@ -1,0 +1,39 @@
+{
+  "fields": {
+    "jobType": {
+      "type": "enum",
+      "options": ["CampaignBroadcast", "WebhookProcessor", "MediaDownloader"],
+      "required": true
+    },
+    "payload": {
+      "type": "text"
+    },
+    "status": {
+      "type": "enum",
+      "options": ["Pending", "Running", "Success", "Failed"],
+      "default": "Pending"
+    },
+    "attempts": {
+      "type": "int",
+      "default": 0
+    },
+    "maxAttempts": {
+      "type": "int",
+      "default": 3
+    },
+    "errorMessage": {
+      "type": "text"
+    },
+    "scheduledAt": {
+      "type": "datetime"
+    },
+    "createdAt": {
+      "type": "datetime",
+      "readOnly": true
+    }
+  },
+  "collection": {
+    "orderBy": "scheduledAt",
+    "order": "asc"
+  }
+}

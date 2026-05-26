@@ -1,0 +1,30 @@
+# ─── EspoCRM WhatsApp Extension Git Ignore ───
+
+# Extension Compiled Releases
+whatsapp-integration-*.zip
+build_temp/
+
+# IDE & Editor specific settings
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+
+# Log files & debug streams
+*.log
+logs/
+data/logs/
+data/cache/
+
+# PHP dependencies (managed dynamically)
+vendor/
+composer.lock
+
+# Local Testing credentials
+config.php
+tests/config_local.php

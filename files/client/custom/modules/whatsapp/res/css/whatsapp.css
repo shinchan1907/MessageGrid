@@ -1,0 +1,503 @@
+/* ==========================================================================
+   EspoCRM WhatsApp Omnichannel Workspace Premium Glassmorphic Stylesheet
+   ========================================================================== */
+
+/* 1. Core Layout Structure */
+.whatsapp-workspace-container {
+    display: flex;
+    height: calc(100vh - 100px);
+    margin: -10px;
+    background: radial-gradient(circle at 10% 20%, rgba(18, 30, 25, 0.4) 0%, rgba(10, 10, 12, 0.9) 90%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    overflow: hidden;
+    color: #f3f4f6;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* 2. Left Navigation Bar */
+.whatsapp-navigation-sidebar {
+    width: 240px;
+    background: rgba(10, 15, 12, 0.7);
+    border-right: 1px solid rgba(255, 255, 255, 0.04);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+}
+
+.brand-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 20px 25px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.brand-icon {
+    font-size: 28px;
+    color: #25d366;
+    filter: drop-shadow(0 0 8px rgba(37, 211, 102, 0.4));
+}
+
+.brand-name {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(120deg, #ffffff, #25d366);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.nav-menu-list {
+    list-style: none;
+    padding: 20px 10px;
+    margin: 0;
+}
+
+.nav-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 550;
+    color: #9ca3af;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 5px;
+}
+
+.nav-menu-item:hover {
+    background: rgba(255, 255, 255, 0.03);
+    color: #ffffff;
+}
+
+.nav-menu-item.active-tab {
+    background: linear-gradient(90deg, rgba(37, 211, 102, 0.15), rgba(18, 140, 126, 0.05));
+    color: #25d366;
+    border-left: 3px solid #25d366;
+    box-shadow: inset 5px 0 20px rgba(37, 211, 102, 0.05);
+}
+
+.nav-menu-item i {
+    font-size: 16px;
+}
+
+/* 3. Content Panel */
+.whatsapp-content-pane {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+/* 4. Chat Inbox Sub-pane */
+.inbox-chats-sidebar {
+    width: 320px;
+    background: rgba(10, 10, 12, 0.4);
+    border-right: 1px solid rgba(255, 255, 255, 0.04);
+    display: flex;
+    flex-direction: column;
+}
+
+.chats-sidebar-header {
+    padding: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.chats-list-scrollable {
+    flex: 1;
+    overflow-y: auto;
+    padding: 5px;
+}
+
+.chat-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 4px;
+}
+
+.chat-item:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.chat-item.active-chat {
+    background: rgba(37, 211, 102, 0.08);
+    border: 1px solid rgba(37, 211, 102, 0.15);
+}
+
+.chat-item-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #128C7E, #25D366);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.chat-avatar-text {
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.chat-item-details {
+    flex: 1;
+    overflow: hidden;
+}
+
+.chat-item-header {
+    display: flex;
+    justify-content: justify;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.customer-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #f3f4f6;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-time {
+    font-size: 11px;
+    color: #6b7280;
+}
+
+.chat-item-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-snippet {
+    font-size: 12px;
+    color: #9ca3af;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 170px;
+}
+
+.chat-status-badges {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.unread-badge {
+    background: #25d366;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+    box-shadow: 0 0 8px rgba(37, 211, 102, 0.5);
+}
+
+/* CRM Pills */
+.crm-pill {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 3px;
+    text-transform: uppercase;
+}
+.crm-lead { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+.crm-contact { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+.crm-account { background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
+
+/* 5. Chat Viewport */
+.chat-active-header {
+    padding: 15px 25px;
+    background: rgba(10, 10, 12, 0.5);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.chat-message-feed {
+    flex: 1;
+    overflow-y: auto;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%2325d366' fill-opacity='0.02'%3E%3Cpath fill-rule='evenodd' d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zM11 78c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm56-53c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM12 44c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm56 28c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.message-bubble-wrapper {
+    display: flex;
+    width: 100%;
+}
+
+.message-bubble {
+    max-width: 65%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.message-incoming {
+    background: rgba(31, 41, 55, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    color: #e5e7eb;
+    border-top-left-radius: 0px;
+}
+
+.message-outgoing {
+    background: rgba(5, 97, 98, 0.85);
+    border: 1px solid rgba(37, 211, 102, 0.15);
+    color: #ffffff;
+    border-top-right-radius: 0px;
+}
+
+.message-internal-note {
+    background: rgba(217, 119, 6, 0.15);
+    border: 1px solid rgba(217, 119, 6, 0.4);
+    color: #fbbf24;
+    border-top-right-radius: 0px;
+}
+
+.message-meta-header {
+    display: flex;
+    justify-content: justify;
+    gap: 15px;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 4px;
+}
+
+.message-sender {
+    font-weight: 700;
+}
+
+.message-time {
+    font-size: 9.5px;
+}
+
+.message-text-content {
+    word-break: break-word;
+}
+
+.message-meta-footer {
+    display: flex;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.chat-active-footer {
+    padding: 15px 25px;
+    background: rgba(10, 10, 12, 0.5);
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    position: relative;
+}
+
+/* 6. Media Attachment Preview styling */
+.media-preview-container {
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.media-preview-image {
+    max-width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.media-preview-image:hover {
+    transform: scale(1.02);
+}
+
+.media-preview-doc {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.media-preview-vid {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+/* 7. Glassmorphic Cards & UI Assets */
+.btn-glass {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    transition: all 0.25s ease;
+}
+
+.btn-glass:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.form-control {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+    border-radius: 6px;
+    padding: 8px 12px;
+}
+
+.form-control:focus {
+    border-color: #25d366 !important;
+    box-shadow: 0 0 10px rgba(37, 211, 102, 0.2) !important;
+}
+
+.workspace-pane {
+    height: 100%;
+}
+
+/* Template Card */
+.template-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.template-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(37, 211, 102, 0.2);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.template-name-lbl {
+    font-weight: 700;
+    font-size: 15px;
+    color: #ffffff;
+}
+
+.template-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.badge-marketing { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+.badge-utility { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+.badge-auth { background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
+
+.template-preview-box {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 8px;
+    padding: 12px;
+    min-height: 80px;
+}
+
+/* Analytics */
+.analytics-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+}
+
+.card-label {
+    font-size: 12px;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.card-metric {
+    font-size: 32px;
+    font-weight: 800;
+}
+
+/* 8. Modals & Overlays */
+.whatsapp-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+}
+
+.whatsapp-modal {
+    width: 90%;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.autocomplete-panel {
+    position: absolute;
+    bottom: 95px;
+    left: 25px;
+    width: calc(100% - 50px);
+    background: rgba(17, 24, 39, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+    z-index: 100;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.canned-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    transition: background 0.2s ease;
+}
+
+.canned-item:hover {
+    background: rgba(37, 211, 102, 0.1);
+}
+
+/* Internal Note Active overrides */
+.btn-warning-active {
+    background: rgba(217, 119, 6, 0.2) !important;
+    border-color: #d97706 !important;
+    color: #fbbf24 !important;
+}
+
+.editor-internal-note-active {
+    border-color: #d97706 !important;
+    background: rgba(217, 119, 6, 0.04) !important;
+}
+
+.empty-list-notice {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6b7280;
+    font-size: 13px;
+}

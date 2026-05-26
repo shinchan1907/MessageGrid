@@ -1,0 +1,46 @@
+{
+  "fields": {
+    "name": {
+      "type": "varchar",
+      "maxLength": 100,
+      "required": true,
+      "index": true
+    },
+    "language": {
+      "type": "varchar",
+      "maxLength": 10,
+      "default": "en"
+    },
+    "category": {
+      "type": "enum",
+      "options": ["Marketing", "Utility", "Authentication"],
+      "default": "Marketing"
+    },
+    "status": {
+      "type": "enum",
+      "options": ["Approved", "Pending", "Rejected", "Deleted"],
+      "default": "Pending"
+    },
+    "components": {
+      "type": "text"
+    },
+    "createdAt": {
+      "type": "datetime",
+      "readOnly": true
+    },
+    "modifiedAt": {
+      "type": "datetime",
+      "readOnly": true
+    }
+  },
+  "indexes": {
+    "name_lang": {
+      "columns": ["name", "language"]
+    }
+  },
+  "collection": {
+    "textFilterFields": ["name", "category"],
+    "orderBy": "name",
+    "order": "asc"
+  }
+}

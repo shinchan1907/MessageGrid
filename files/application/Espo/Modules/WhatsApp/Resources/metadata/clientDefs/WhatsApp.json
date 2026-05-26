@@ -1,0 +1,5 @@
+{
+  "controller": "whatsapp:controllers/whatsapp",
+  "color": "#128C7E",
+  "iconClass": "fab fa-whatsapp"
+}

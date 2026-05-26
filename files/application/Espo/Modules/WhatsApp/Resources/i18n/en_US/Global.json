@@ -1,0 +1,24 @@
+{
+  "scopeNames": {
+    "WhatsApp": "WhatsApp",
+    "WhatsAppConversation": "WhatsApp Conversation",
+    "WhatsAppMessage": "WhatsApp Message",
+    "WhatsAppTemplate": "WhatsApp Template",
+    "WhatsAppCampaign": "WhatsApp Campaign",
+    "WhatsAppCampaignMember": "WhatsApp Campaign Member",
+    "WhatsAppWebhookLog": "WhatsApp Webhook Log",
+    "WhatsAppCannedResponse": "WhatsApp Canned Response",
+    "WhatsAppQueueJob": "WhatsApp Queue Job"
+  },
+  "scopeNamesPlural": {
+    "WhatsApp": "WhatsApp",
+    "WhatsAppConversation": "WhatsApp Conversations",
+    "WhatsAppMessage": "WhatsApp Messages",
+    "WhatsAppTemplate": "WhatsApp Templates",
+    "WhatsAppCampaign": "WhatsApp Campaigns",
+    "WhatsAppCampaignMember": "WhatsApp Campaign Members",
+    "WhatsAppWebhookLog": "WhatsApp Webhook Logs",
+    "WhatsAppCannedResponse": "WhatsApp Canned Responses",
+    "WhatsAppQueueJob": "WhatsApp Queue Jobs"
+  }
+}

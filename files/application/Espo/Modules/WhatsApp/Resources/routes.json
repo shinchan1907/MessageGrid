@@ -1,0 +1,87 @@
+[
+  {
+    "route": "/WhatsApp/settings",
+    "method": "get",
+    "actionClassName": "Espo\\Modules\\WhatsApp\\Api\\WhatsAppSettingsGet"
+  },
+  {
+    "route": "/WhatsApp/settings",
+    "method": "post",
+    "actionClassName": "Espo\\Modules\\WhatsApp\\Api\\WhatsAppSettingsPost"
+  },
+  {
+    "route": "/WhatsApp/conversations",
+    "method": "get",
+    "actionClassName": "Espo\\Modules\\WhatsApp\\Api\\WhatsAppConversationsGet"
+  },
+  {
+    "route": "/WhatsApp/messages",
+    "method": "get",
+    "actionClassName": "Espo\\Modules\\WhatsApp\\Api\\WhatsAppMessagesGet"
+  },
+  {
+    "route": "/WhatsApp/sendMessage",
+    "method": "post",
+    "actionClassName": "Espo\\Modules\\WhatsApp\\Api\\WhatsAppSendMessage"
+  },
+  {
+    "route": "/WhatsApp/templates",
+    "method": "get",
+    "actionClassName": "Espo\\Modules\\WhatsApp\\Api\\WhatsAppTemplatesGet"
+  },
+  {
+    "route": "/WhatsApp/syncTemplates",
+    "method": "post",
+    "actionClassName": "Espo\\Modules\\WhatsApp\\Api\\WhatsAppTemplatesSync"
+  },
+  {
+    "route": "/WhatsApp/campaigns",
+    "method": "get",
+    "actionClassName": "Espo\\Modules\\WhatsApp\\Api\\WhatsAppCampaignsGet"
+  },
+  {
+    "route": "/WhatsApp/sendCampaign",
+    "method": "post",
+    "actionClassName": "Espo\\Modules\\WhatsApp\\Api\\WhatsAppCampaignSend"
+  },
+  {
+    "route": "/WhatsApp/analytics",
+    "method": "get",
+    "actionClassName": "Espo\\Modules\\WhatsApp\\Api\\WhatsAppAnalyticsGet"
+  },
+  {
+    "route": "/WhatsApp/assign",
+    "method": "post",
+    "actionClassName": "Espo\\Modules\\WhatsApp\\Api\\WhatsAppAssign"
+  },
+  {
+    "route": "/WhatsApp/notes",
+    "method": "post",
+    "actionClassName": "Espo\\Modules\\WhatsApp\\Api\\WhatsAppNotesAdd"
+  },
+  {
+    "route": "/WhatsApp/cannedResponses",
+    "method": "get",
+    "actionClassName": "Espo\\Modules\\WhatsApp\\Api\\WhatsAppCannedResponsesGet"
+  },
+  {
+    "route": "/WhatsApp/cannedResponses",
+    "method": "post",
+    "actionClassName": "Espo\\Modules\\WhatsApp\\Api\\WhatsAppCannedResponsesPost"
+  },
+  {
+    "route": "/WhatsApp/logs",
+    "method": "get",
+    "actionClassName": "Espo\\Modules\\WhatsApp\\Api\\WhatsAppLogsGet"
+  },
+  {
+    "route": "/WhatsApp/diagnostics",
+    "method": "get",
+    "actionClassName": "Espo\\Modules\\WhatsApp\\Api\\WhatsAppDiagnostics"
+  },
+  {
+    "route": "/WhatsApp/supportBundle",
+    "method": "get",
+    "actionClassName": "Espo\\Modules\\WhatsApp\\Api\\WhatsAppSupportBundle"
+  }
+]

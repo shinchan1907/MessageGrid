@@ -1,0 +1,82 @@
+{
+  "fields": {
+    "conversation": {
+      "type": "link"
+    },
+    "metaMessageId": {
+      "type": "varchar",
+      "maxLength": 100,
+      "index": true
+    },
+    "direction": {
+      "type": "enum",
+      "options": ["Incoming", "Outgoing"],
+      "required": true
+    },
+    "type": {
+      "type": "enum",
+      "options": ["Text", "Image", "Document", "Audio", "Video", "Template", "System"],
+      "default": "Text"
+    },
+    "status": {
+      "type": "enum",
+      "options": ["Sent", "Delivered", "Read", "Failed"],
+      "default": "Sent"
+    },
+    "sender": {
+      "type": "link"
+    },
+    "textContent": {
+      "type": "text"
+    },
+    "mediaUrl": {
+      "type": "varchar",
+      "maxLength": 255
+    },
+    "mediaMimeType": {
+      "type": "varchar",
+      "maxLength": 100
+    },
+    "mediaSize": {
+      "type": "int"
+    },
+    "templateName": {
+      "type": "varchar",
+      "maxLength": 100
+    },
+    "errorMessage": {
+      "type": "text"
+    },
+    "isInternalNote": {
+      "type": "bool",
+      "default": false
+    },
+    "createdAt": {
+      "type": "datetime",
+      "readOnly": true
+    }
+  },
+  "links": {
+    "conversation": {
+      "type": "belongsTo",
+      "entity": "WhatsAppConversation"
+    },
+    "sender": {
+      "type": "belongsTo",
+      "entity": "User"
+    }
+  },
+  "indexes": {
+    "metaMessageId": {
+      "columns": ["metaMessageId"]
+    },
+    "conversation_createdAt": {
+      "columns": ["conversationId", "createdAt"]
+    }
+  },
+  "collection": {
+    "textFilterFields": ["textContent", "templateName"],
+    "orderBy": "createdAt",
+    "order": "asc"
+  }
+}
