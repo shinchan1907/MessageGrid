@@ -8,12 +8,40 @@ use Exception;
 
 class QueueService
 {
+    private string $redisQueueKey = 'whatsapp_queue';
+
     public function __construct(
         private EntityManager $entityManager,
         private Config $config,
         private MetaApiService $metaApiService,
         private StorageService $storageService
     ) {}
+
+    /**
+     * Retrieve a connected Redis client if configured and available.
+     */
+    private function getRedisClient(): ?\Redis
+    {
+        if ($this->config->get('cacheBackend') !== 'Redis') {
+            return null;
+        }
+        if (!class_exists('\Redis')) {
+            return null;
+        }
+
+        try {
+            $redis = new \Redis();
+            $host = $this->config->get('redisHost') ?: '127.0.0.1';
+            $port = $this->config->get('redisPort') ?: 6379;
+
+            if ($redis->connect($host, (int)$port, 1.5)) {
+                return $redis;
+            }
+        } catch (\Exception) {
+            // Fall back gracefully to database-backed operations
+        }
+        return null;
+    }
 
     /**
      * Enqueue a new background job.
@@ -37,6 +65,20 @@ class QueueService
         ]);
 
         $this->entityManager->saveEntity($job);
+
+        // Hybrid Redis queue pushing: If immediate execution is desired and Redis is active, en-queue the job ID
+        $isImmediate = ($scheduledAt === null || $scheduledAt <= new DateTime());
+        if ($isImmediate) {
+            $redis = $this->getRedisClient();
+            if ($redis) {
+                try {
+                    $redis->rPush($this->redisQueueKey, $job->id);
+                } catch (\Exception) {
+                    // Fall back to database processing seamlessly if Redis push fails
+                }
+            }
+        }
+
         return $job->id;
     }
 
@@ -46,46 +88,82 @@ class QueueService
      */
     public function runQueue(int $limit = 20): int
     {
-        $now = date('Y-m-d H:i:s');
-        $jobs = $this->entityManager->getRepository('WhatsAppQueueJob')
-            ->where([
-                'status' => 'Pending',
-                'scheduledAt<=' => $now
-            ])
-            ->limit($limit)
-            ->order('scheduledAt', 'ASC')
-            ->find();
-
         $processed = 0;
-        foreach ($jobs as $job) {
-            $job->set('status', 'Running');
-            $job->set('attempts', $job->get('attempts') + 1);
-            $this->entityManager->saveEntity($job);
 
+        // Try Redis first for fast FIFO queue processing
+        $redis = $this->getRedisClient();
+        if ($redis) {
             try {
-                $payload = json_decode($job->get('payload'), true) ?: [];
-                $this->executeJob($job->get('jobType'), $payload);
+                while ($processed < $limit) {
+                    $jobId = $redis->lPop($this->redisQueueKey);
+                    if (!$jobId) {
+                        break; // Queue is empty
+                    }
 
-                $job->set('status', 'Success');
-                $job->set('errorMessage', '');
-                $this->entityManager->saveEntity($job);
-            } catch (Exception $e) {
-                $job->set('errorMessage', $e->getMessage());
-                if ($job->get('attempts') >= $job->get('maxAttempts')) {
-                    $job->set('status', 'Failed');
-                } else {
-                    $job->set('status', 'Pending');
-                    // Retry in 2 minutes
-                    $retryTime = new DateTime();
-                    $retryTime->modify('+2 minutes');
-                    $job->set('scheduledAt', $retryTime->format('Y-m-d H:i:s'));
+                    $job = $this->entityManager->getEntity('WhatsAppQueueJob', $jobId);
+                    if ($job && $job->get('status') === 'Pending') {
+                        $this->executeSingleJob($job);
+                        $processed++;
+                    }
                 }
-                $this->entityManager->saveEntity($job);
+            } catch (\Exception) {
+                // Fail back to database processing on any Redis connection failures mid-stream
             }
-            $processed++;
+        }
+
+        // Database Fallback or Scheduled Tasks Processing:
+        // Even if Redis is active, check the DB for future-scheduled tasks whose triggers are now due
+        $now = date('Y-m-d H:i:s');
+        $remainingLimit = $limit - $processed;
+
+        if ($remainingLimit > 0) {
+            $jobs = $this->entityManager->getRepository('WhatsAppQueueJob')
+                ->where([
+                    'status' => 'Pending',
+                    'scheduledAt<=' => $now
+                ])
+                ->limit($remainingLimit)
+                ->order('scheduledAt', 'ASC')
+                ->find();
+
+            foreach ($jobs as $job) {
+                $this->executeSingleJob($job);
+                $processed++;
+            }
         }
 
         return $processed;
+    }
+
+    /**
+     * Executes a single claimed job, logging transitions and catching exceptions.
+     */
+    private function executeSingleJob($job): void
+    {
+        $job->set('status', 'Running');
+        $job->set('attempts', $job->get('attempts') + 1);
+        $this->entityManager->saveEntity($job);
+
+        try {
+            $payload = json_decode($job->get('payload'), true) ?: [];
+            $this->executeJob($job->get('jobType'), $payload);
+
+            $job->set('status', 'Success');
+            $job->set('errorMessage', '');
+            $this->entityManager->saveEntity($job);
+        } catch (Exception $e) {
+            $job->set('errorMessage', $e->getMessage());
+            if ($job->get('attempts') >= $job->get('maxAttempts')) {
+                $job->set('status', 'Failed');
+            } else {
+                $job->set('status', 'Pending');
+                // Retry in 2 minutes
+                $retryTime = new DateTime();
+                $retryTime->modify('+2 minutes');
+                $job->set('scheduledAt', $retryTime->format('Y-m-d H:i:s'));
+            }
+            $this->entityManager->saveEntity($job);
+        }
     }
 
     /**

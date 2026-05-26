@@ -1,7 +1,7 @@
 {
   "WhatsApp": {
     "params": {
-      "controller": "whatsapp:controllers/whatsapp",
+      "controller": "WhatsApp",
       "action": "index"
     }
   }

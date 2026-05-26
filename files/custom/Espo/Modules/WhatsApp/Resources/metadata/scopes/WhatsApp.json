@@ -1,7 +1,9 @@
 {
   "entity": false,
+  "object": true,
   "tab": true,
   "disabled": false,
+  "acl": "boolean",
   "module": "WhatsApp",
   "isCustom": true
 }

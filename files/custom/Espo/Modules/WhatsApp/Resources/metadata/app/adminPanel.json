@@ -1,0 +1,14 @@
+{
+  "whatsapp": {
+    "label": "WhatsApp",
+    "itemList": [
+      {
+        "url": "#WhatsApp",
+        "label": "WhatsApp Integration",
+        "iconClass": "fab fa-whatsapp",
+        "description": "whatsappIntegrationDesc"
+      }
+    ],
+    "order": 10
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "labels": {
+    "WhatsApp": "WhatsApp",
+    "WhatsApp Integration": "WhatsApp Integration"
+  },
+  "descriptions": {
+    "whatsappIntegrationDesc": "Configure Meta WABA credentials, synchronize templates, launch broadcasts, and manage active customer conversations."
+  }
+}

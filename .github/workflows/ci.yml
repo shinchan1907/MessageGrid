@@ -21,7 +21,7 @@ jobs:
           tools: phpstan
 
       - name: Run PHPStan Static Analysis
-        run: phpstan analyse files/application/Espo/Modules/WhatsApp/ --level=5 --error-format=github
+        run: phpstan analyse files/custom/Espo/Modules/WhatsApp/ --level=5 --error-format=github
 
   verification-suite:
     runs-on: ubuntu-latest

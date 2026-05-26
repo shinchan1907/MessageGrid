@@ -1,4 +1,17 @@
 define(['view'], (View) => {
+    const empty = (val) => {
+        if (val === undefined || val === null) return true;
+        if (typeof val === 'string' && val.trim() === '') return true;
+        if (Array.isArray(val) && val.length === 0) return true;
+        if (typeof val === 'object' && Object.keys(val).length === 0) return true;
+        return false;
+    };
+
+    const round = (val, precision = 0) => {
+        const factor = Math.pow(10, precision);
+        return Math.round(val * factor) / factor;
+    };
+
     return class extends View {
         template = 'whatsapp:whatsapp';
 
@@ -43,15 +56,8 @@ define(['view'], (View) => {
             this.selectedConv = null;
             this.isInternalNoteActive = false;
 
-            // Poll for real-time messages and status changes every 4 seconds
-            this.pollingInterval = setInterval(() => {
-                if (this.activeTab === 'inbox') {
-                    this.fetchConversations(false);
-                    if (this.selectedConv) {
-                        this.fetchMessages(this.selectedConv.id, false);
-                    }
-                }
-            }, 4000);
+            // Initialize real-time updates (SSE with automatic polling fallback)
+            this.initRealtime();
             
             // Initial data pull
             this.fetchConversations(true);
@@ -61,9 +67,72 @@ define(['view'], (View) => {
             this.fetchSettings();
         }
 
+        initRealtime() {
+            if (typeof EventSource !== 'undefined') {
+                this.initSSE();
+            } else {
+                this.initPolling();
+            }
+        }
+
+        initSSE() {
+            if (this.sseSource) {
+                this.sseSource.close();
+            }
+
+            const siteUrl = this.getBasePath() || '';
+            const convIdParam = this.selectedConv ? `&conversationId=${this.selectedConv.id}` : '';
+            const sseUrl = `${siteUrl}?entryPoint=WhatsAppRealtime${convIdParam}`;
+
+            this.sseSource = new EventSource(sseUrl);
+
+            this.sseSource.onmessage = (e) => {
+                try {
+                    const data = JSON.parse(e.data);
+                    if (this.activeTab === 'inbox') {
+                        if (data.conversations) {
+                            this.fetchConversations(false);
+                        }
+                        if (data.messages && this.selectedConv) {
+                            this.fetchMessages(this.selectedConv.id, false);
+                        }
+                    }
+                } catch (err) {
+                    console.error("SSE parsing error:", err);
+                }
+            };
+
+            this.sseSource.onerror = () => {
+                console.warn("SSE stream error. Gracefully falling back to 4s polling.");
+                if (this.sseSource) {
+                    this.sseSource.close();
+                    this.sseSource = null;
+                }
+                this.initPolling();
+            };
+        }
+
+        initPolling() {
+            if (this.pollingInterval) {
+                return; // already polling
+            }
+
+            this.pollingInterval = setInterval(() => {
+                if (this.activeTab === 'inbox') {
+                    this.fetchConversations(false);
+                    if (this.selectedConv) {
+                        this.fetchMessages(this.selectedConv.id, false);
+                    }
+                }
+            }, 4000);
+        }
+
         onDestroy() {
             if (this.pollingInterval) {
                 clearInterval(this.pollingInterval);
+            }
+            if (this.sseSource) {
+                this.sseSource.close();
             }
         }
 
@@ -248,6 +317,11 @@ define(['view'], (View) => {
             }
 
             this.fetchMessages(id, true);
+
+            // Re-establish SSE connection with the newly selected conversation context
+            if (this.sseSource) {
+                this.initSSE();
+            }
         }
 
         renderMessages(triggerScroll = true) {

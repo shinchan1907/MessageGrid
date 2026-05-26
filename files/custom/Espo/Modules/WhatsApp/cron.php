@@ -4,9 +4,17 @@
  */
 
 // Step 1: Locate and load EspoCRM bootstrap
-$espoRoot = dirname(dirname(dirname(dirname(dirname(__DIR__)))));
+$espoRoot = __DIR__;
+while ($espoRoot !== '/' && $espoRoot !== '.' && !file_exists($espoRoot . '/bootstrap.php')) {
+    $parent = dirname($espoRoot);
+    if ($parent === $espoRoot) {
+        break;
+    }
+    $espoRoot = $parent;
+}
+
 if (!file_exists($espoRoot . '/bootstrap.php')) {
-    die("Error: EspoCRM bootstrap.php not found at: {$espoRoot}\n");
+    die("Error: EspoCRM bootstrap.php not found. Walked up from " . __DIR__ . "\n");
 }
 
 require_once $espoRoot . '/bootstrap.php';

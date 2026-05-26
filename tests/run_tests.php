@@ -14,6 +14,43 @@ namespace Espo\ORM {
 }
 
 namespace {
+
+if (!class_exists('Redis')) {
+    class Redis {
+        public static bool $shouldFail = false;
+        private static array $mockStorage = [];
+        
+        public function connect(string $host, int $port = 6379, float $timeout = 0.0): bool {
+            return !self::$shouldFail;
+        }
+        
+        public function rPush(string $key, string $value) {
+            if (self::$shouldFail) {
+                throw new \Exception("Redis connection lost");
+            }
+            if (!isset(self::$mockStorage[$key])) {
+                self::$mockStorage[$key] = [];
+            }
+            self::$mockStorage[$key][] = $value;
+            return count(self::$mockStorage[$key]);
+        }
+        
+        public function lPop(string $key) {
+            if (self::$shouldFail) {
+                throw new \Exception("Redis connection lost");
+            }
+            if (empty(self::$mockStorage[$key])) {
+                return false;
+            }
+            return array_shift(self::$mockStorage[$key]);
+        }
+        
+        public static function clearMockStorage(): void {
+            self::$mockStorage = [];
+        }
+    }
+}
+
 // Define color terminals
 define('GREEN', "\033[32m");
 define('RED', "\033[31m");
@@ -39,6 +76,7 @@ class WhatsAppTestSuite
         $this->testStorageAWSv4Signature();
         $this->testRoutingRoundRobinAndSticky();
         $this->testCampaignPlaceholderInterpolation();
+        $this->testQueueServiceHybridAndFallback();
 
         $this->printSummary();
     }
@@ -74,7 +112,7 @@ class WhatsAppTestSuite
         echo "\n" . YELLOW . "Suite 1: Cryptographic Vault (SecurityHelper)" . NC . "\n";
         
         // Mock Config
-        require_once dirname(__DIR__) . '/files/application/Espo/Modules/WhatsApp/Helpers/SecurityHelper.php';
+        require_once dirname(__DIR__) . '/files/custom/Espo/Modules/WhatsApp/Helpers/SecurityHelper.php';
         
         $mockConfig = new class extends \Espo\Core\Config {
             public function get(string $key) {
@@ -84,7 +122,7 @@ class WhatsAppTestSuite
 
         try {
             // Instantiate security helper with mock config
-            $configObject = unserialize(serialize($mockConfig)); // sanitize
+            $configObject = $mockConfig;
             $helper = new \Espo\Modules\WhatsApp\Helpers\SecurityHelper($configObject);
 
             $secret = "Meta Permanent Token cleartext 123456!@#$";
@@ -121,14 +159,14 @@ class WhatsAppTestSuite
     {
         echo "\n" . YELLOW . "Suite 2: Webhook HMAC Cryptographic Validation" . NC . "\n";
 
-        require_once dirname(__DIR__) . '/files/application/Espo/Modules/WhatsApp/Services/MetaApiService.php';
+        require_once dirname(__DIR__) . '/files/custom/Espo/Modules/WhatsApp/Services/MetaApiService.php';
 
+        require_once dirname(__DIR__) . '/files/custom/Espo/Modules/WhatsApp/Helpers/SecurityHelper.php';
         $mockConfig = new class extends \Espo\Core\Config {
+            public string $encryptedSecret = '';
             public function get(string $key) {
                 if ($key === 'whatsappMetaAppSecret') {
-                    // Encrypted version of secret: 'waba_app_secret_abc'
-                    // Using our helper salt 'antigravity_test_unique_key_9876543210'
-                    return 'U002bTl2Zit5dEwvaTZwSmh3akNlQT09OjpkREI3MWxSUDg5L0FpS3ZSTjJzTXZxUXcrb1ozZ2d4TEcrYWhmZ0V5dnNZPQ==';
+                    return $this->encryptedSecret;
                 }
                 if ($key === 'cryptKey') {
                     return 'antigravity_test_unique_key_9876543210';
@@ -136,6 +174,8 @@ class WhatsAppTestSuite
                 return null;
             }
         };
+        $helper = new \Espo\Modules\WhatsApp\Helpers\SecurityHelper($mockConfig);
+        $mockConfig->encryptedSecret = $helper->encrypt('waba_app_secret_abc');
 
         try {
             $apiService = new \Espo\Modules\WhatsApp\Services\MetaApiService($mockConfig);
@@ -211,7 +251,7 @@ class WhatsAppTestSuite
     {
         echo "\n" . YELLOW . "Suite 4: AWS Signature v4 HMAC Construction" . NC . "\n";
 
-        require_once dirname(__DIR__) . '/files/application/Espo/Modules/WhatsApp/Services/StorageService.php';
+        require_once dirname(__DIR__) . '/files/custom/Espo/Modules/WhatsApp/Services/StorageService.php';
 
         $mockConfig = new class extends \Espo\Core\Config {
             public function get(string $key) {
@@ -289,6 +329,246 @@ class WhatsAppTestSuite
             $interpolated === "Hello John Doe, you requested details on San Francisco.",
             "Merged correctly: {$interpolated}"
         );
+    }
+
+    /**
+     * 7. Hybrid Redis-Database Queue Engine & Fallback Tests
+     */
+    private function testQueueServiceHybridAndFallback(): void
+    {
+        echo "\n" . YELLOW . "Suite 7: Hybrid Redis-Database Queue & Fallback Engine" . NC . "\n";
+
+        // Load QueueService
+        require_once dirname(__DIR__) . '/files/custom/Espo/Modules/WhatsApp/Services/QueueService.php';
+
+        // 7.1 Setup mock environment with DB-only mode
+        $mockConfigDbOnly = new class extends \Espo\Core\Config {
+            public function get(string $key) {
+                if ($key === 'cacheBackend') return 'Database';
+                return null;
+            }
+        };
+
+        $mockEntityManager = new class extends \Espo\ORM\EntityManager {
+            public array $entities = [];
+            public function getEntity(string $entityType, ?string $id = null) {
+                if ($id !== null) {
+                    return $this->entities[$id] ?? null;
+                }
+                $entity = new class {
+                    public ?string $id = null;
+                    public array $data = [];
+                    public function __construct() { $this->id = 'job_' . uniqid(); }
+                    public function set($key, $value = null) {
+                        if (is_array($key)) {
+                            foreach ($key as $k => $v) { $this->data[$k] = $v; }
+                        } else { $this->data[$key] = $value; }
+                    }
+                    public function get(string $key) { return $this->data[$key] ?? null; }
+                };
+                $this->entities[$entity->id] = $entity;
+                return $entity;
+            }
+            public function createEntity(string $entityType) {
+                return $this->getEntity($entityType);
+            }
+            public function saveEntity($entity): void {
+                $this->entities[$entity->id] = $entity;
+            }
+            public function getRepository(string $entityType) {
+                $outer = $this;
+                return new class($outer->entities) {
+                    public function __construct(private array $entities) {}
+                    public function where(array $criteria) { return $this; }
+                    public function limit(int $limit) { return $this; }
+                    public function order(string $f, string $d = 'ASC') { return $this; }
+                    public function find() { return array_values($this->entities); }
+                };
+            }
+        };
+
+        $mockMetaApi = new \Espo\Modules\WhatsApp\Services\MetaApiService($mockConfigDbOnly);
+        $mockStorage = new \Espo\Modules\WhatsApp\Services\StorageService($mockConfigDbOnly);
+
+        try {
+            $queueService = new \Espo\Modules\WhatsApp\Services\QueueService(
+                $mockEntityManager,
+                $mockConfigDbOnly,
+                $mockMetaApi,
+                $mockStorage
+            );
+
+            // Test push in DB-only mode
+            $payload = ['test' => 'data'];
+            $jobId = $queueService->push('CampaignBroadcast', $payload);
+
+            $this->assert(
+                "Queue push generates a database entry in DB-only mode",
+                !empty($jobId) && isset($mockEntityManager->entities[$jobId]),
+                "Job stored in local entity map"
+            );
+
+            $this->assert(
+                "Job status is initialized to Pending",
+                $mockEntityManager->entities[$jobId]->get('status') === 'Pending',
+                "Status: Pending"
+            );
+
+            // Test runQueue in DB-only mode (processes from database repository)
+            $processedCount = $queueService->runQueue(10);
+            $this->assert(
+                "runQueue successfully processes database queue jobs in fallback mode",
+                $processedCount === 1,
+                "Processed 1 job"
+            );
+
+            $this->assert(
+                "Processed job status is upgraded to Success on early return",
+                $mockEntityManager->entities[$jobId]->get('status') === 'Success',
+                "Status changed: Success"
+            );
+
+        } catch (\Exception $e) {
+            $this->assert("DB-only Queue Execution", false, $e->getMessage());
+        }
+
+        // 7.2 Setup mock environment with Redis enabled
+        $mockConfigRedis = new class extends \Espo\Core\Config {
+            public function get(string $key) {
+                if ($key === 'cacheBackend') return 'Redis';
+                if ($key === 'redisHost') return '127.0.0.1';
+                if ($key === 'redisPort') return 6379;
+                return null;
+            }
+        };
+
+        // Initialize a clean entity manager
+        $mockEntityManagerRedis = new class extends \Espo\ORM\EntityManager {
+            public array $entities = [];
+            public function getEntity(string $entityType, ?string $id = null) {
+                if ($id !== null) {
+                    return $this->entities[$id] ?? null;
+                }
+                $entity = new class {
+                    public ?string $id = null;
+                    public array $data = [];
+                    public function __construct() { $this->id = 'job_' . uniqid(); }
+                    public function set($key, $value = null) {
+                        if (is_array($key)) {
+                            foreach ($key as $k => $v) { $this->data[$k] = $v; }
+                        } else { $this->data[$key] = $value; }
+                    }
+                    public function get(string $key) { return $this->data[$key] ?? null; }
+                };
+                $this->entities[$entity->id] = $entity;
+                return $entity;
+            }
+            public function createEntity(string $entityType) {
+                return $this->getEntity($entityType);
+            }
+            public function saveEntity($entity): void {
+                $this->entities[$entity->id] = $entity;
+            }
+            public function getRepository(string $entityType) {
+                $outer = $this;
+                return new class($outer->entities) {
+                    public function __construct(private array $entities) {}
+                    public function where(array $criteria) { return $this; }
+                    public function limit(int $limit) { return $this; }
+                    public function order(string $f, string $d = 'ASC') { return $this; }
+                    public function find() { return array_values($this->entities); }
+                };
+            }
+        };
+
+        try {
+            $queueServiceRedis = new \Espo\Modules\WhatsApp\Services\QueueService(
+                $mockEntityManagerRedis,
+                $mockConfigRedis,
+                $mockMetaApi,
+                $mockStorage
+            );
+
+            // Access/verify our mocked Redis class
+            if (class_exists('Redis') && method_exists('Redis', 'clearMockStorage')) {
+                // Clear any pre-existing mocked redis lists if present
+                \Redis::clearMockStorage();
+
+                // Test push in Redis mode
+                $jobIdRedis = $queueServiceRedis->push('CampaignBroadcast', $payload);
+
+                $this->assert(
+                    "Queue push registers in DB even when Redis is active",
+                    !empty($jobIdRedis) && isset($mockEntityManagerRedis->entities[$jobIdRedis]),
+                    "Job stored in database"
+                );
+
+                // Verify that job was pushed to Redis list
+                $redis = new \Redis();
+                $redis->connect('127.0.0.1', 6379, 1.5);
+                
+                // Let's pop to check it
+                $poppedId = $redis->lPop('whatsapp_queue');
+                $this->assert(
+                    "Queue push simultaneously inserts job ID into Redis FIFO list",
+                    $poppedId === $jobIdRedis,
+                    "Redis list pop returned the correct job ID"
+                );
+
+                // Push again so we can process it with runQueue()
+                $jobIdRedis2 = $queueServiceRedis->push('CampaignBroadcast', $payload);
+
+                // Test runQueue in Redis mode
+                $processedCountRedis = $queueServiceRedis->runQueue(10);
+                $this->assert(
+                    "runQueue utilizes high-throughput Redis list claims",
+                    $processedCountRedis === 1,
+                    "Processed 1 job from Redis pop"
+                );
+
+                $this->assert(
+                    "Redis claimed job is executed and updated to Success",
+                    $mockEntityManagerRedis->entities[$jobIdRedis2]->get('status') === 'Success',
+                    "Status updated: Success"
+                );
+
+                // 7.3 Test automatic error fallback when Redis fails
+                if (method_exists('Redis', 'clearMockStorage')) {
+                    \Redis::clearMockStorage();
+                    \Redis::$shouldFail = true;
+                }
+
+                // Push with Redis throwing error should fall back seamlessly to DB
+                $jobIdFallback = $queueServiceRedis->push('CampaignBroadcast', $payload);
+                $this->assert(
+                    "Queue push handles Redis connection failures gracefully",
+                    !empty($jobIdFallback) && $mockEntityManagerRedis->entities[$jobIdFallback]->get('status') === 'Pending',
+                    "Job saved to DB fallback even when Redis push throws exception"
+                );
+
+                // Process with Redis throwing error should fall back seamlessly to DB
+                $processedFallback = $queueServiceRedis->runQueue(10);
+                $this->assert(
+                    "runQueue handles Redis connection failures gracefully",
+                    $processedFallback === 1,
+                    "Successfully processed fallback job from DB query"
+                );
+
+                $this->assert(
+                    "DB fallback-processed job status updated to Success",
+                    $mockEntityManagerRedis->entities[$jobIdFallback]->get('status') === 'Success',
+                    "Status: Success"
+                );
+
+                // Restore Redis mock state
+                \Redis::$shouldFail = false;
+            } else {
+                echo YELLOW . "  [SKIP] " . NC . "Redis FIFO integration tests (native Redis class present without mock capability)\n";
+            }
+
+        } catch (\Exception $e) {
+            $this->assert("Redis-Enabled Queue Execution", false, $e->getMessage());
+        }
     }
 
     private function printSummary(): void

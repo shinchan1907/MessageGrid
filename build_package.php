@@ -3,7 +3,7 @@
  * WhatsApp Extension Installable ZIP Compiler Build Script
  */
 
-$packageName = 'whatsapp-integration-1.0.0.zip';
+$packageName = 'whatsapp-integration-1.0.7.zip';
 
 if (file_exists($packageName)) {
     @unlink($packageName);

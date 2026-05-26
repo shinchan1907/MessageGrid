@@ -8,7 +8,7 @@ First of all, thank you for taking the time to contribute! We welcome contributi
    ```bash
    git clone https://github.com/YOUR_USERNAME/espo-whatsapp-integration.git
    ```
-2. Make your code changes inside the isolated folder `files/application/Espo/Modules/WhatsApp/`.
+2. Make your code changes inside the isolated folder `files/custom/Espo/Modules/WhatsApp/`.
 3. Never modify EspoCRM core database structures directly.
 
 ## Indentation and Coding Standards
